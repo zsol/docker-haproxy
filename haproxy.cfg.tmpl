@@ -14,12 +14,12 @@ frontend http-frn
 frontend https-frn
     bind 0.0.0.0:443 ssl crt {{ $env.SSL_KEY_AND_CERT }}
     reqadd X-Forwarded-Proto:\ https
-{{ range split $env.BACKENDS ":" }}{{ $name := . }}
-    acl {{ $name }}-path-acl path_beg -i {{ printf "BACKEND_%s_PATH" $name | index $env }}
-    use_backend {{ $name }} if {{ $name }}-path-acl
+{{ range $index, $name := split $env.BACKENDS ":" }}
+    {{ with printf "BACKEND_%s_PATH" $name | index $env }}acl {{ $name }}-acl path_beg -i {{ . }} {{ end }}
+    {{ with printf "BACKEND_%s_HOST" $name | index $env }}acl {{ $name }}-acl hdr(Host) -i {{ . }} {{ end }}
+    use_backend {{ $name }} if {{ $name }}-acl
 {{ end }}
-{{ range split $env.BACKENDS ":" }}{{ $name := . }}
+{{ range $index, $name := split $env.BACKENDS ":" }}
 backend {{ $name }}
-    server {{ $name | printf "%s-srv" }} {{ printf "BACKEND_%s_HOSTPORT" . | index $env }} weight 1 maxconn 1024 
-check
+    server {{ $name }}-srv {{ printf "BACKEND_%s_HOSTPORT" . | index $env }} weight 1 maxconn 1024 check
 {{ end }}

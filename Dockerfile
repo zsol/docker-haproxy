@@ -5,6 +5,6 @@ RUN apt-get update && apt-get install -y curl && \
     tar -C /usr/local/bin -xzvf dockerize-linux-amd64-v0.0.4.tar.gz && \
     rm dockerize-linux-amd64-v0.0.4.tar.gz && apt-get clean
 
-ADD haproxy.cfg.tmpl /usr/local/etc/haproxy/haproxy.cfg.tmpl
+ADD haproxy.cfg.tmpl /haproxy.cfg.tmpl
 
-CMD dockerize -template /usr/local/etc/haproxy/haproxy.cfg.tmpl:/usr/local/etc/haproxy/haproxy.cfg
+CMD dockerize -template /haproxy.cfg.tmpl:/haproxy.cfg haproxy -db -f /haproxy.cfg
